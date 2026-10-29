@@ -45,6 +45,8 @@ dsh plugin --profile <profile> add github:YML0823/dsh-local-market
 dsh plugin --profile web add "file:F:/path/to/dsh-local-market-1.0.1.tgz"
 ```
 
+已发布版本可直接下载：[GitHub Releases · v1.0.1](https://github.com/YML0823/dsh-local-market/releases/tag/v1.0.1)
+
 构建 tarball：
 
 ```bash

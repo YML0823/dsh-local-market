@@ -48,6 +48,7 @@
     live: false,
     liveError: null,
     refreshedAt: null,
+    catalogApi: false,
     syncBusy: false,
     isMobileNav: false,
   };
@@ -172,18 +173,24 @@
   // ---------------------------------------------------------------------------
   async function loadCatalog(force = false) {
     let payload = null;
+    let apiOk = false;
     try {
       const response = await fetch(appUrl(`api/catalog${force ? '?refresh=1' : ''}`), {
         headers: { Accept: 'application/json' },
       });
-      if (response.ok) payload = await response.json();
+      if (response.ok) {
+        payload = await response.json();
+        apiOk = Array.isArray(payload.plugins);
+      }
     } catch (_) {}
     if (!payload || !Array.isArray(payload.plugins)) {
       const response = await fetch('data/plugins.json', { headers: { Accept: 'application/json' } });
       if (!response.ok) throw new Error(`目录加载失败（HTTP ${response.status}）`);
       payload = await response.json();
       payload.live = false;
+      apiOk = false;
     }
+    state.catalogApi = apiOk;
     state.data = payload;
     state.live = Boolean(payload.live);
     state.liveError = payload.liveError || null;
@@ -1272,6 +1279,10 @@
 
   async function syncCatalog() {
     if (state.syncBusy) return;
+    if (!state.catalogApi) {
+      toast('当前宿主还没有加载实时目录接口，请重启一次 DSH', 'error');
+      return;
+    }
     state.syncBusy = true;
     const button = $('#syncBtn');
     if (button) {
@@ -1342,8 +1353,9 @@
       renderHero();
       startHeroCycle();
       renderResults();
-      $('#statTotal').textContent = formatFull(state.plugins.length);
-      $('#statShots').textContent = formatFull(state.plugins.filter((plugin) => plugin.shots?.length).length);
+      updateNavCounts();
+      const syncButton = $('#syncBtn');
+      if (syncButton) syncButton.hidden = !state.catalogApi;
       const hero = state.featured[0];
       if (hero) $('#heroImage').src = hero.heroImage || hero.image;
       const hash = location.hash.match(/^#p=(.+)$/);
