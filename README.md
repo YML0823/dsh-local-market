@@ -42,10 +42,10 @@ dsh plugin --profile <profile> add github:YML0823/dsh-local-market
 ### 从本地 tarball 安装
 
 ```powershell
-dsh plugin --profile web add "file:F:/path/to/dsh-local-market-1.0.2.tgz"
+dsh plugin --profile web add "file:F:/path/to/dsh-local-market-1.0.3.tgz"
 ```
 
-已发布版本可直接下载：[GitHub Releases · v1.0.2](https://github.com/YML0823/dsh-local-market/releases/tag/v1.0.2)
+已发布版本可直接下载：[GitHub Releases · v1.0.3](https://github.com/YML0823/dsh-local-market/releases/tag/v1.0.3)
 
 构建 tarball：
 
@@ -53,7 +53,7 @@ dsh plugin --profile web add "file:F:/path/to/dsh-local-market-1.0.2.tgz"
 node scripts/build-plugin.js
 ```
 
-产物输出到 `dist/dsh-local-market-1.0.2.tgz`。
+产物输出到 `dist/dsh-local-market-1.0.3.tgz`。
 
 ### 插件结构
 
@@ -187,4 +187,5 @@ node server.js
 ![手机端](preview-mobile.png)
 
 ![插件详情](preview-detail.png)
+
 

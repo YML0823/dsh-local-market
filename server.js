@@ -15,7 +15,7 @@ const os = require('os');
 const zlib = require('zlib');
 const crypto = require('crypto');
 const { spawn, spawnSync } = require('child_process');
-const { normalizeCatalog, FEATURED, collectInstalled } = require('./lib/catalog.js');
+const { normalizeCatalog, FEATURED, collectInstalled, resolveInstalledName } = require('./lib/catalog.js');
 
 const ROOT = __dirname;
 const PUBLIC_DIR = path.join(ROOT, 'public');
@@ -336,15 +336,19 @@ async function serveImage(req, res, requestUrl) {
 const jobs = new Map();
 let runningJobId = null;
 
-function createJob(plugin, profile) {
+function createJob(plugin, profile, action = 'install', packageName = null) {
   const id = crypto.randomBytes(6).toString('hex');
   const job = {
     id,
     pluginId: plugin.id,
     pluginName: plugin.name,
     profile,
+    action,
+    packageName,
     spec: plugin.spec,
-    command: `${quoteCmd(DSH_BIN)} plugin --profile ${quoteCmd(profile)} add ${quoteCmd(plugin.spec)}`,
+    command: action === 'uninstall'
+      ? `${quoteCmd(DSH_BIN)} plugin --profile ${quoteCmd(profile)} remove ${quoteCmd(packageName)}`
+      : `${quoteCmd(DSH_BIN)} plugin --profile ${quoteCmd(profile)} add ${quoteCmd(plugin.spec)}`,
     status: 'running',
     code: null,
     output: '',
@@ -390,7 +394,7 @@ function startJob(job, profileDir) {
   });
   job.child = child;
   runningJobId = job.id;
-  emitJob(job, { type: 'start', command: job.command, plugin: job.pluginName, profile: job.profile });
+  emitJob(job, { type: 'start', command: job.command, plugin: job.pluginName, profile: job.profile, action: job.action });
 
   const onData = (stream) => (chunk) => {
     const value = cleanAnsi(chunk.toString('utf8'));
@@ -557,6 +561,49 @@ const server = http.createServer(async (req, res) => {
 
     if (pathname === '/api/image' && req.method === 'GET') {
       return serveImage(req, res, requestUrl);
+    }
+
+    if (pathname === '/api/uninstall' && req.method === 'POST') {
+      if (req.headers['x-dsh-market'] !== 'install') {
+        return json(res, 403, { error: '缺少卸载请求标记' });
+      }
+      if (runningJobId) {
+        const running = jobs.get(runningJobId);
+        return json(res, 409, { error: '另一个操作正在进行中', jobId: runningJobId, plugin: running?.pluginName });
+      }
+      let body;
+      try {
+        body = await readBody(req);
+      } catch (error) {
+        return json(res, 400, { error: error.message });
+      }
+      const plugin = pluginById.get(String(body.id || ''));
+      if (!plugin) return json(res, 404, { error: '目录中找不到这个插件' });
+      const profileName = String(body.profile || '');
+      if (!/^[a-z0-9][a-z0-9._-]{0,40}$/i.test(profileName)) {
+        return json(res, 400, { error: 'profile 名称不合法' });
+      }
+      const info = readProfiles();
+      const profile = info.profiles.find((item) => item.name === profileName);
+      if (!profile?.dir || !fs.existsSync(profile.dir)) {
+        return json(res, 400, { error: '目标 profile 目录不存在' });
+      }
+      const packageName = resolveInstalledName(collectInstalled(profile.dir), plugin);
+      if (!packageName) {
+        return json(res, 400, { error: '没有在这个 profile 里找到对应的已安装包' });
+      }
+      if (!/^(?:@[a-z0-9][a-z0-9._-]*\/)?[a-z0-9][a-z0-9._-]*$/i.test(packageName)) {
+        return json(res, 400, { error: '安装包名称不合法' });
+      }
+      const job = createJob(plugin, profileName, 'uninstall', packageName);
+      startJob(job, profile.dir);
+      return json(res, 202, {
+        jobId: job.id,
+        command: job.command,
+        profile: profileName,
+        plugin: plugin.name,
+        package: packageName,
+      });
     }
 
     if (pathname === '/api/install' && req.method === 'POST') {

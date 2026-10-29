@@ -202,6 +202,13 @@
     return false;
   }
 
+  function installedPackageFor(plugin) {
+    for (const candidate of installedCandidates(plugin)) {
+      if (state.installedNames.has(candidate)) return candidate;
+    }
+    return '';
+  }
+
   function isInstalled(id) {
     const plugin = state.byId.get(id);
     if (state.installedApi && plugin) {
@@ -240,6 +247,26 @@
   async function refreshInstalled() {
     if (document.hidden) return;
     await loadInstalled();
+  }
+
+  async function refreshInstalledManually() {
+    const button = $('#installedRefreshBtn');
+    if (button) {
+      button.disabled = true;
+      button.classList.add('syncing');
+    }
+    try {
+      await loadInstalled();
+      renderResults();
+      updateNavCounts();
+      if (!state.installedApi) toast('刷新失败：当前宿主尚未加载已安装接口，请重启 DSH', 'error');
+      else toast('已刷新已安装列表');
+    } finally {
+      if (button) {
+        button.disabled = false;
+        button.classList.remove('syncing');
+      }
+    }
   }
 
   function addRecent(id) {
@@ -520,9 +547,10 @@
           <p class="card-desc">${esc(plugin.desc || plugin.descEn || '社区插件，暂无中文说明。')}</p>
           <div class="card-foot">
             <div class="card-stats">${stars}${downloads}</div>
-            <button class="card-install ${installed ? 'installed' : ''}" data-install="${esc(plugin.id)}">
-              <svg><use href="#${installed ? 'i-check' : 'i-download'}"/></svg>${installed ? '已安装' : '安装'}
-            </button>
+            ${installed
+              ? `<button class="card-install installed" data-open="${esc(plugin.id)}"><svg><use href="#i-check"/></svg>已安装</button>
+                 <button class="card-uninstall" data-uninstall="${esc(plugin.id)}"><svg><use href="#i-trash"/></svg>卸载</button>`
+              : `<button class="card-install" data-install="${esc(plugin.id)}"><svg><use href="#i-download"/></svg>安装</button>`}
           </div>
         </div>
       </article>`;
@@ -609,6 +637,8 @@
       button.classList.toggle('active', active);
     });
     setActiveNav();
+    const installedRefresh = $('#installedRefreshBtn');
+    if (installedRefresh) installedRefresh.hidden = state.view !== 'installed' || !state.installedApi;
     updateNavCounts();
   }
 
@@ -619,6 +649,7 @@
     resetPaging();
     renderCategories();
     renderResults();
+    if (view === 'installed') refreshInstalled();
     if (view === 'screenshots') $('#pageScroll').scrollTo({ top: $('#allSection').offsetTop - 80, behavior: 'smooth' });
   }
 
@@ -781,10 +812,12 @@
         </div>
         <div class="drawer-install">
           <div class="install-copy">
-            <small>安装到本机</small>
+            <small>${installed ? '已安装到本机' : '安装到本机'}</small>
             <code>${esc(command)}</code>
           </div>
-          <button class="primary-btn" data-install="${esc(plugin.id)}"><svg><use href="#${installed ? 'i-check' : 'i-download'}"/></svg>${installed ? '已安装' : '安装'}</button>
+          ${installed
+            ? `<button class="card-uninstall" data-uninstall="${esc(plugin.id)}"><svg><use href="#i-trash"/></svg>卸载</button>`
+            : `<button class="primary-btn" data-install="${esc(plugin.id)}"><svg><use href="#i-download"/></svg>安装</button>`}
         </div>
         <p class="install-note">安装会调用本机 <b>dsh plugin</b> 写入 profile <b>${esc(profile)}</b>。安装完成后通常需要刷新页面或重启 DSH。</p>
 
@@ -1087,6 +1120,125 @@
     }
   }
 
+  function openUninstall(id) {
+    const plugin = state.byId.get(id);
+    if (!plugin) return;
+    if (!isInstalled(id)) {
+      toast('这个插件当前没有被识别为已安装');
+      return;
+    }
+    const profile = installProfile();
+    const packageName = installedPackageFor(plugin) || plugin.npm || plugin.name.split('#')[0];
+    const command = `dsh plugin --profile ${profile} remove ${packageName}`;
+    const cat = plugin._cat || categoryOf(plugin);
+    $('#installContent').innerHTML = `
+      <div class="modal-head" style="--cat:${esc(cat.color)}">
+        <div class="modal-icon">${plugin.icon ? `<img src="${esc(imageUrl(plugin.icon))}" alt="" onerror="this.remove()">` : esc(cat.icon)}</div>
+        <div>
+          <h2 id="installTitle">卸载 ${esc(plugin._short || plugin.name)}</h2>
+          <p>${esc(cat.name)} · ${esc(plugin.owner)} · profile ${esc(profile)}</p>
+        </div>
+        <button class="modal-close" data-close-modal aria-label="关闭"><svg><use href="#i-close"/></svg></button>
+      </div>
+      <div class="modal-body">
+        <div class="warn-box"><svg><use href="#i-info"/></svg><span>这会从当前 profile 移除已安装包 <b>${esc(packageName)}</b>。只影响本机安装，不会删除作者仓库；卸载后通常需要刷新或重启 DSH。</span></div>
+        <div class="command-box">
+          <div class="command-top"><span>将要执行的命令</span><button class="copy-btn" data-copy="${esc(command)}"><svg><use href="#i-copy"/></svg>复制</button></div>
+          <pre class="command-code">${esc(command)}</pre>
+        </div>
+        <div class="modal-actions">
+          <button class="outline-btn" data-close-modal>取消</button>
+          <button class="danger-btn" id="confirmUninstallBtn"><svg><use href="#i-trash"/></svg>确认卸载</button>
+        </div>
+        <div id="uninstallProgress"></div>
+      </div>`;
+    $('#modalRoot').classList.add('open');
+    $('#modalRoot').setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    $('#confirmUninstallBtn').addEventListener('click', () => startUninstall(plugin, profile));
+  }
+
+  async function startUninstall(plugin, profile) {
+    const button = $('#confirmUninstallBtn');
+    if (button) {
+      button.disabled = true;
+      button.innerHTML = '<span class="spinner"></span>正在卸载…';
+    }
+    $('#uninstallProgress').innerHTML = `
+      <div class="install-terminal">
+        <div class="terminal-top"><span class="terminal-dots"><i></i><i></i><i></i></span><span>dsh plugin · ${esc(profile)}</span></div>
+        <pre class="terminal-out" id="uninstallTerminal"></pre>
+      </div>
+      <div class="install-status" id="uninstallStatus"><span class="spinner"></span><span>正在准备卸载…</span></div>`;
+    const terminal = $('#uninstallTerminal');
+    const status = $('#uninstallStatus');
+    const append = (text) => {
+      terminal.textContent += text;
+      terminal.scrollTop = terminal.scrollHeight;
+    };
+
+    try {
+      const response = await fetch(appUrl('api/uninstall'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-DSH-Market': 'install' },
+        body: JSON.stringify({ id: plugin.id, profile }),
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload.error || `卸载请求失败（HTTP ${response.status}）`);
+      state.installJob = { id: payload.jobId, status: 'running', pluginId: plugin.id, action: 'uninstall' };
+      const source = new EventSource(appUrl(`api/install/${payload.jobId}/events`));
+      state.installSource = source;
+      source.onmessage = (event) => {
+        let data;
+        try { data = JSON.parse(event.data); } catch (_) { return; }
+        if (data.type === 'log') append(data.text);
+        if (data.type === 'start') append(`$ ${data.command}\n\n`);
+        if (data.type === 'end') {
+          source.close();
+          state.installSource = null;
+          state.installJob = { id: payload.jobId, status: data.status, pluginId: plugin.id, action: 'uninstall' };
+          if (data.status === 'success') {
+            state.installed.delete(plugin.id);
+            saveInstalled();
+            loadInstalled().catch(() => {});
+            updateNavCounts();
+            renderResults();
+            status.innerHTML = '<span class="status-success">✓ 已卸载</span><span style="color:#71839b">刷新或重启 DSH 后完全生效</span>';
+            if (button) {
+              button.disabled = true;
+              button.innerHTML = '<svg><use href="#i-check"/></svg>已卸载';
+            }
+            $('#uninstallProgress').insertAdjacentHTML('beforeend', `<div class="modal-actions"><button class="outline-btn" data-close-modal>完成</button></div>`);
+            toast('已卸载，刷新或重启 DSH 后完全生效');
+            if (state.detailId === plugin.id) closeDetail();
+          } else {
+            status.innerHTML = `<span class="status-error">✕ 卸载失败（退出码 ${data.code ?? '未知'}）</span>`;
+            if (button) {
+              button.disabled = true;
+              button.textContent = '卸载失败';
+            }
+            $('#uninstallProgress').insertAdjacentHTML('beforeend', `
+              <div class="warn-box"><svg><use href="#i-info"/></svg><span>可以复制命令到终端重试；如果提示 profile 被应用管理，请在 DSH 设置→插件里卸载。</span></div>
+              <div class="modal-actions"><button class="outline-btn" data-close-modal>关闭</button><button class="outline-btn" data-copy="${esc(payload.command || '')}"><svg><use href="#i-copy"/></svg>复制命令</button></div>`);
+          }
+        }
+      };
+      source.onerror = () => {
+        if (state.installSource === source) {
+          source.close();
+          state.installSource = null;
+        }
+      };
+    } catch (error) {
+      append(`\n[market] ${error.message}\n`);
+      status.innerHTML = `<span class="status-error">✕ ${esc(error.message)}</span>`;
+      if (button) {
+        button.disabled = true;
+        button.textContent = '卸载失败';
+      }
+    }
+  }
+
   function openGuide() {
     $('#installContent').innerHTML = `
       <div class="modal-head">
@@ -1221,6 +1373,7 @@
     $('#randomBtn').addEventListener('click', randomPlugin);
     $('#randomHero').addEventListener('click', randomPlugin);
     $('#syncBtn').addEventListener('click', syncCatalog);
+    $('#installedRefreshBtn').addEventListener('click', refreshInstalledManually);
     $('#guideBtn').addEventListener('click', openGuide);
     $('#hostRefresh').addEventListener('click', async (event) => {
       event.stopPropagation();
@@ -1264,7 +1417,7 @@
     // Global delegated actions
     document.addEventListener('click', (event) => {
       const open = event.target.closest('[data-open]');
-      if (open && !event.target.closest('[data-fav]') && !event.target.closest('[data-install]')) {
+      if (open && !event.target.closest('[data-fav]') && !event.target.closest('[data-install]') && !event.target.closest('[data-uninstall]')) {
         openDetail(open.dataset.open);
         return;
       }
@@ -1272,6 +1425,12 @@
       if (install) {
         event.stopPropagation();
         openInstall(install.dataset.install);
+        return;
+      }
+      const uninstall = event.target.closest('[data-uninstall]');
+      if (uninstall) {
+        event.stopPropagation();
+        openUninstall(uninstall.dataset.uninstall);
         return;
       }
       const favorite = event.target.closest('[data-fav]');
@@ -1439,11 +1598,7 @@
       startHeroCycle();
       renderResults();
       updateNavCounts();
-      setInterval(refreshInstalled, 5000);
-      window.addEventListener('focus', refreshInstalled);
-      document.addEventListener('visibilitychange', () => {
-        if (!document.hidden) refreshInstalled();
-      });
+      setInterval(refreshInstalled, 10 * 60 * 1000);
       const syncButton = $('#syncBtn');
       if (syncButton) syncButton.hidden = !state.catalogApi;
       const hero = state.featured[0];

@@ -1,6 +1,6 @@
 {
   "name": "dsh-local-market",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "private": true,
   "type": "module",
   "description": "DSH 本地插件市场：在 Plugins 页里检索、预览并安装社区插件",
@@ -32,3 +32,4 @@
     "node": ">=20"
   }
 }
+

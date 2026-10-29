@@ -202,13 +202,16 @@ svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width:
 .hero-lead { max-width: 540px; margin: 0; color: #95a6bf; font-size: 14.5px; line-height: 1.78; }
 .hero-lead code { font-family: var(--mono); font-size: .88em; color: #9fdfd3; background: rgba(100, 230, 203, .07); border: 1px solid rgba(100, 230, 203, .1); padding: 1px 5px; border-radius: 5px; }
 .hero-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 27px; }
-.primary-btn, .outline-btn {
+.primary-btn, .outline-btn, .danger-btn {
   height: 43px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 11px; padding: 0 18px; font-size: 12.5px; font-weight: 650; transition: .18s ease; white-space: nowrap;
 }
 .primary-btn { color: #04120f; background: linear-gradient(135deg, #7debd5 0%, #6cc8f4 55%, #8da9ff 100%); box-shadow: 0 10px 28px -12px rgba(100, 230, 203, .55), inset 0 1px 0 rgba(255,255,255,.35); }
 .primary-btn:hover { transform: translateY(-1px); box-shadow: 0 16px 34px -14px rgba(100, 230, 203, .65); filter: saturate(1.06); }
 .primary-btn:disabled { opacity: .42; cursor: not-allowed; transform: none; box-shadow: none; filter: none; }
-.primary-btn svg, .outline-btn svg { width: 15px; height: 15px; }
+.danger-btn { color: #ffe8ed; background: rgba(190, 42, 68, .55); border: 1px solid rgba(251, 113, 133, .38); }
+.danger-btn:hover { background: rgba(214, 48, 77, .7); border-color: rgba(251, 113, 133, .6); }
+.danger-btn:disabled { opacity: .45; cursor: not-allowed; }
+.primary-btn svg, .outline-btn svg, .danger-btn svg { width: 15px; height: 15px; }
 .outline-btn { color: var(--text-soft); border: 1px solid var(--line-strong); background: rgba(148, 171, 205, .035); }
 .outline-btn:hover { color: var(--text); border-color: rgba(148, 171, 205, .34); background: rgba(148, 171, 205, .07); }
 .hero-trust { display: flex; flex-wrap: wrap; gap: 17px; margin-top: 24px; color: #6e7f98; font-size: 10.5px; }
@@ -300,6 +303,12 @@ svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width:
 .featured-badge { position: absolute; top: 11px; right: 11px; width: 24px; height: 24px; display: grid; place-items: center; border-radius: 50%; background: rgba(6, 12, 22, .52); border: 1px solid rgba(255,255,255,.1); backdrop-filter: blur(10px); color: #cfe6ff; font-size: 10px; }
 
 .list-head { align-items: center; margin-bottom: 16px; }
+.list-actions { display: flex; align-items: center; gap: 8px; }
+.installed-refresh { display: inline-flex; align-items: center; gap: 5px; height: 34px; padding: 0 10px; border: 1px solid var(--line); border-radius: 9px; color: var(--muted); font-size: 10.5px; background: rgba(148, 171, 205, .035); }
+.installed-refresh:hover { color: var(--accent); border-color: rgba(100, 230, 203, .25); }
+.installed-refresh svg { width: 13px; height: 13px; }
+.installed-refresh.syncing svg { animation: spin 1s linear infinite; }
+.installed-refresh:disabled { opacity: .6; cursor: wait; }
 .sort-wrap { display: flex; align-items: center; gap: 7px; color: var(--muted); border: 1px solid var(--line); background: rgba(148, 171, 205, .035); border-radius: 9px; padding: 0 8px 0 10px; height: 34px; }
 .sort-wrap svg { width: 13px; height: 13px; color: var(--muted-2); }
 .sort-wrap select { appearance: none; border: 0; outline: 0; background: transparent; color: var(--text-soft); font-size: 11px; padding-right: 4px; cursor: pointer; }
@@ -375,6 +384,9 @@ svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width:
 .card-install svg { width: 10px; height: 10px; }
 .card-install.installed { color: #a7c8ff; background: rgba(114, 167, 255, .08); border-color: rgba(114, 167, 255, .18); }
 .card-install.installed:hover { background: rgba(114, 167, 255, .14); }
+.card-uninstall { display: inline-flex; align-items: center; gap: 3px; height: 26px; padding: 0 8px; border-radius: 6px; border: 1px solid rgba(251, 113, 133, .2); background: rgba(251, 113, 133, .07); color: #e9a0ae; font-size: 9.5px; font-weight: 600; }
+.card-uninstall:hover { background: rgba(251, 113, 133, .14); border-color: rgba(251, 113, 133, .34); }
+.card-uninstall svg { width: 10px; height: 10px; }
 
 /* list layout */
 .plugin-grid.list-layout .plugin-card { flex-direction: row; align-items: stretch; min-height: 104px; }
