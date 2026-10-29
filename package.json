@@ -1,0 +1,53 @@
+{
+  "name": "dsh-local-market",
+  "version": "1.0.1",
+  "private": false,
+  "description": "DSH 中文插件市场：实时社区目录、中文检索、界面预览与一键安装",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YML0823/dsh-local-market.git"
+  },
+  "homepage": "https://github.com/YML0823/dsh-local-market",
+  "type": "commonjs",
+  "main": "./plugin/index.js",
+  "icon": "./plugin/icon.svg",
+  "exports": {
+    ".": "./plugin/index.js",
+    "./client": "./plugin/client.js",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "build:data": "node scripts/build-data.js",
+    "build:plugin": "node scripts/build-plugin.js"
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "plugin-market",
+    "marketplace"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./plugin/cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": []
+    }
+  },
+  "files": [
+    "plugin",
+    "lib",
+    "public",
+    "server.js",
+    "start.cmd",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  }
+}

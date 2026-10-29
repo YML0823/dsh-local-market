@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#070b14">
+  <meta name="description" content="DSH 社区插件市场：从 GitHub dsh-plugin 主题检索 7400+ 插件，中文说明、界面截图与一键安装。">
+  <title>DSH Market · 社区插件市场</title>
+  <link rel="icon" href="assets/icons/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <svg class="svg-sprite" aria-hidden="true">
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 2.5c.6 5.6 2.9 8.4 8.5 9-5.6.6-7.9 3.4-8.5 9-.6-5.6-2.9-8.4-8.5-9 5.6-.6 7.9-3.4 8.5-9Z"/><path d="M19 2v3M17.5 3.5h3"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></symbol>
+    <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m21 15-4.5-4.5L7 20"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m20 6-11 11-5-5"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M7 17 17 7M7 7h10v10"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
+    <symbol id="i-terminal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="m7 9 3 3-3 3M13 15h4"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 4.5 6v5.2c0 4.6 3.2 8.8 7.5 9.8 4.3-1 7.5-5.2 7.5-9.8V6L12 3Z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3Z"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-external" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9"/><path d="M20 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h5"/></symbol>
+    <symbol id="i-github" viewBox="0 0 24 24"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3.3-.4 6.8-1.6 6.8-7A5.4 5.4 0 0 0 19.4 4 5 5 0 0 0 19.3.5S18.2.1 15 1.8a13.4 13.4 0 0 0-7 0C4.8.1 3.7.5 3.7.5A5 5 0 0 0 3.6 4a5.4 5.4 0 0 0-1.5 3.7c0 5.4 3.5 6.6 6.8 7A4.8 4.8 0 0 0 8 18v4"/><path d="M8 19c-3 .9-3-1.5-4-2"/></symbol>
+    <symbol id="i-filter" viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4"/></symbol>
+    <symbol id="i-sort" viewBox="0 0 24 24"><path d="M8 5v14M5 8l3-3 3 3M16 19V5M13 16l3 3 3-3"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="4" cy="6" r=".8" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r=".8" fill="currentColor" stroke="none"/><circle cx="4" cy="18" r=".8" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7V5Z"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.1 9a7 7 0 0 1 11.4-2L20 9M4 15l2.5 2a7 7 0 0 0 11.4-2"/></symbol>
+  </svg>
+
+  <div class="ambient" aria-hidden="true">
+    <div class="ambient-orb orb-a"></div>
+    <div class="ambient-orb orb-b"></div>
+    <div class="ambient-grid"></div>
+  </div>
+
+  <div class="app" id="app">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="#" data-home>
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 42 42" fill="none">
+            <path d="M8 23.5c0-7 5.4-12.5 12-12.5 5.7 0 10.5 3.8 11.7 9.1 1.6.5 2.8 2 2.8 3.8 0 2.2-1.8 4-4 4H12.2A4.2 4.2 0 0 1 8 23.7v-.2Z" fill="url(#whaleGrad)"/>
+            <circle cx="27.2" cy="20.8" r="1.4" fill="#06111c"/>
+            <path d="M12.5 29.2c3 2.4 6.2 3.5 9.7 3.2" stroke="#5eead4" stroke-width="1.6" stroke-linecap="round" opacity=".75"/>
+            <path d="M9 10.5c1.6-.8 3.3-.6 4.7.6M31.2 9.8c1.5-.4 3 .1 4.1 1.3" stroke="#8fb6ff" stroke-width="1.4" stroke-linecap="round" opacity=".65"/>
+            <defs><linearGradient id="whaleGrad" x1="8" y1="11" x2="34" y2="33" gradientUnits="userSpaceOnUse"><stop stop-color="#7de8d0"/><stop offset=".55" stop-color="#6ea8ff"/><stop offset="1" stop-color="#a78bfa"/></linearGradient></defs>
+          </svg>
+        </span>
+        <span class="brand-copy">
+          <strong>DSH Market</strong>
+          <small>社区插件市场</small>
+        </span>
+      </a>
+
+      <nav class="side-nav" aria-label="主要导航">
+        <button class="nav-item active" data-view="discover">
+          <svg><use href="#i-grid"/></svg><span>发现</span><span class="nav-count" id="navTotal">—</span>
+        </button>
+        <button class="nav-item" data-view="screenshots">
+          <svg><use href="#i-image"/></svg><span>界面预览</span><span class="nav-count" id="navShots">—</span>
+        </button>
+        <button class="nav-item" data-view="favorites">
+          <svg><use href="#i-heart"/></svg><span>我的收藏</span><span class="nav-count" id="navFavorites">0</span>
+        </button>
+        <button class="nav-item" data-view="installed">
+          <svg><use href="#i-download"/></svg><span>已安装</span><span class="nav-count" id="navInstalled">0</span>
+        </button>
+      </nav>
+
+      <div class="side-section">
+        <div class="side-heading">
+          <span>分类</span>
+          <button class="link-btn" data-view="discover" data-clear-category>全部</button>
+        </div>
+        <div class="category-list" id="categoryList"></div>
+      </div>
+
+      <div class="side-bottom">
+        <div class="host-card" id="hostCard">
+          <span class="host-dot"></span>
+          <div class="host-copy">
+            <small>本机 DSH</small>
+            <strong id="hostProfile">正在检测…</strong>
+          </div>
+          <button class="icon-btn tiny" id="hostRefresh" title="刷新本机信息" aria-label="刷新本机信息"><svg><use href="#i-refresh"/></svg></button>
+        </div>
+        <a class="side-link" href="https://github.com/topics/dsh-plugin" target="_blank" rel="noreferrer">
+          <svg><use href="#i-github"/></svg>GitHub dsh-plugin 主题<svg class="out"><use href="#i-external"/></svg>
+        </a>
+        <p class="side-fineprint">目录由社区维护 · 安装前请审查第三方代码</p>
+      </div>
+    </aside>
+
+    <div class="sidebar-scrim" id="sidebarScrim"></div>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="icon-btn menu-btn" id="menuBtn" aria-label="打开导航"><svg><use href="#i-menu"/></svg></button>
+        <div class="search-wrap" id="searchWrap">
+          <label class="searchbox" for="searchInput">
+            <svg class="search-icon"><use href="#i-search"/></svg>
+            <input id="searchInput" type="search" autocomplete="off" spellcheck="false" placeholder="搜索插件、能力或作者，例如「视觉」「记忆」「桌宠」…">
+            <kbd id="searchKbd">Ctrl K</kbd>
+            <button type="button" class="search-clear" id="searchClear" aria-label="清空搜索"><svg><use href="#i-close"/></svg></button>
+          </label>
+          <div class="search-pop" id="searchPop" hidden>
+            <p class="pop-label">热门搜索</p>
+            <div class="pop-chips" id="hotSearches"></div>
+            <p class="pop-label">按能力找</p>
+            <div class="pop-chips" id="hotCaps"></div>
+          </div>
+        </div>
+        <div class="top-actions">
+          <button class="ghost-btn" id="syncBtn" title="从社区目录同步最新插件">
+            <svg><use href="#i-refresh"/></svg><span>同步</span>
+          </button>
+          <button class="ghost-btn" id="randomBtn" title="随机发现一个插件">
+            <svg><use href="#i-spark"/></svg><span>随机逛逛</span>
+          </button>
+          <button class="ghost-btn" id="guideBtn">
+            <svg><use href="#i-info"/></svg><span>安装说明</span>
+          </button>
+          <a class="ghost-btn icon-only" href="https://github.com/topics/dsh-plugin" target="_blank" rel="noreferrer" aria-label="在 GitHub 查看 dsh-plugin 主题">
+            <svg><use href="#i-github"/></svg>
+          </a>
+        </div>
+      </header>
+
+      <div class="page-scroll" id="pageScroll">
+        <section class="hero" aria-labelledby="heroTitle">
+          <div class="hero-copy">
+            <div class="eyebrow"><span class="live-dot"></span> DEEPSEEK HARNESS · COMMUNITY PLUGINS</div>
+            <h1 id="heroTitle">让每一个插件<br><span class="grad">被看见，也被用上。</span></h1>
+            <p class="hero-lead">从 GitHub <code>dsh-plugin</code> 社区里，把 <span id="heroCount">7,400+</span> 个插件整理成一份看得懂的中文目录。查说明、看界面、装进你的 DSH，一步到位。</p>
+            <div class="hero-actions">
+              <button class="primary-btn" id="exploreBtn"><svg><use href="#i-grid"/></svg>开始探索</button>
+              <button class="outline-btn" id="randomHero"><svg><use href="#i-spark"/></svg>随便看看</button>
+            </div>
+            <div class="hero-trust">
+              <span><svg><use href="#i-shield"/></svg>来源可追溯</span>
+              <span><svg><use href="#i-check"/></svg>全中文说明</span>
+              <span><svg><use href="#i-image"/></svg>真实界面预览</span>
+            </div>
+          </div>
+
+          <div class="hero-stage">
+            <div class="hero-aura" id="heroAura"></div>
+            <div class="browser" id="heroBrowser" role="button" tabindex="0" aria-label="打开精选插件详情">
+              <div class="browser-bar">
+                <div class="browser-dots"><i></i><i></i><i></i></div>
+                <div class="browser-url"><svg><use href="#i-shield"/></svg><span id="heroUrl">dsh-market / plugin</span></div>
+                <span class="browser-live"><i></i>LIVE</span>
+              </div>
+              <div class="browser-view">
+                <img id="heroImage" alt="插件界面预览" decoding="async">
+                <div class="browser-sheen"></div>
+              </div>
+              <div class="hero-caption">
+                <div>
+                  <span class="caption-kicker" id="heroKicker">视觉外挂</span>
+                  <strong id="heroTitleSmall">给纯文本模型，装上一双眼睛</strong>
+                </div>
+                <span class="caption-arrow"><svg><use href="#i-arrow"/></svg></span>
+              </div>
+            </div>
+            <div class="floating-chip chip-a"><span class="chip-glyph">✦</span><span><b id="heroStars">4.5k</b><small>GitHub Stars</small></span></div>
+            <div class="floating-chip chip-b"><span class="status-dot"></span><span><b>已更新</b><small id="heroUpdated">2026.10</small></span></div>
+            <div class="hero-thumbs" id="heroThumbs" aria-label="精选插件切换"></div>
+          </div>
+        </section>
+
+        <section class="stat-strip" aria-label="目录数据">
+          <div class="stat"><span class="stat-value" id="statTotal">7,406</span><span class="stat-label">社区插件</span><span class="stat-spark">↗</span></div>
+          <div class="stat"><span class="stat-value" id="statShots">1,683</span><span class="stat-label">带界面预览</span><span class="stat-spark">◫</span></div>
+          <div class="stat"><span class="stat-value" id="statCategories">23</span><span class="stat-label">能力分类</span><span class="stat-spark">◇</span></div>
+          <div class="stat"><span class="stat-value" id="statUpdated">10.27</span><span class="stat-label">目录更新</span><span class="stat-spark">↻</span></div>
+          <div class="stat-note"><svg><use href="#i-spark"/></svg><span>数据来自社区目录，<br>每 10 分钟自动同步最新插件。</span></div>
+        </section>
+
+        <section class="section featured-section" aria-labelledby="featuredTitle">
+          <div class="section-head">
+            <div>
+              <span class="eyebrow">EDITOR'S PICKS</span>
+              <h2 id="featuredTitle">编辑精选 <span class="head-count">本周</span></h2>
+            </div>
+            <p>从界面到能力都值得先试的一批插件。<span class="desktop-only">每一张都是真实截图，可横滑。</span></p>
+          </div>
+          <div class="featured-rail" id="featuredRail"></div>
+        </section>
+
+        <section class="section all-section" id="allSection" aria-labelledby="resultTitle">
+          <div class="section-head list-head">
+            <div>
+              <span class="eyebrow">ALL PLUGINS</span>
+              <h2 id="resultTitle">全部插件 <span class="head-count" id="resultCount">—</span></h2>
+            </div>
+            <div class="sort-wrap">
+              <svg><use href="#i-sort"/></svg>
+              <select id="sortSelect" aria-label="排序方式">
+                <option value="recommended">推荐排序</option>
+                <option value="stars">Star 最多</option>
+                <option value="downloads">下载最多</option>
+                <option value="newest">最近收录</option>
+                <option value="name">名称 A → Z</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="toolbar">
+            <div class="quick-filters" id="quickFilters">
+              <button class="chip active" data-filter="all">全部</button>
+              <button class="chip" data-filter="shots"><svg><use href="#i-image"/></svg>有界面图</button>
+              <button class="chip" data-filter="npm"><span class="chip-dot npm"></span>npm</button>
+              <button class="chip" data-filter="github"><svg><use href="#i-github"/></svg>GitHub</button>
+              <button class="chip" data-filter="installed"><svg><use href="#i-check"/></svg>已安装</button>
+            </div>
+            <div class="view-toggle" role="group" aria-label="视图">
+              <button class="active" data-layout="grid" title="网格视图" aria-label="网格视图"><svg><use href="#i-grid"/></svg></button>
+              <button data-layout="list" title="列表视图" aria-label="列表视图"><svg><use href="#i-list"/></svg></button>
+            </div>
+          </div>
+
+          <div class="active-filters" id="activeFilters" hidden></div>
+
+          <div class="plugin-grid" id="pluginGrid" aria-live="polite"></div>
+
+          <div class="empty-state" id="emptyState" hidden>
+            <div class="empty-mark">◌</div>
+            <h3>没有找到匹配的插件</h3>
+            <p>试试更短的关键词，或清空分类与筛选条件。</p>
+            <button class="outline-btn" id="resetFilters">清空筛选</button>
+          </div>
+
+          <div class="load-wrap">
+            <button class="load-btn" id="loadMoreBtn" hidden>加载更多 <span id="loadMoreCount"></span></button>
+            <p class="end-note" id="endNote" hidden>— 已经看到目录末尾了 —</p>
+          </div>
+        </section>
+
+        <footer class="page-footer">
+          <div class="footer-brand">
+            <span class="brand-mark small"><svg viewBox="0 0 42 42" fill="none"><path d="M8 23.5c0-7 5.4-12.5 12-12.5 5.7 0 10.5 3.8 11.7 9.1 1.6.5 2.8 2 2.8 3.8 0 2.2-1.8 4-4 4H12.2A4.2 4.2 0 0 1 8 23.7v-.2Z" fill="url(#whaleGrad2)"/><defs><linearGradient id="whaleGrad2" x1="8" y1="11" x2="34" y2="33" gradientUnits="userSpaceOnUse"><stop stop-color="#7de8d0"/><stop offset=".55" stop-color="#6ea8ff"/><stop offset="1" stop-color="#a78bfa"/></linearGradient></defs></svg></span>
+            <div><strong>DSH Market</strong><p>为 DeepSeek Harness 社区做的一份中文插件目录。</p></div>
+          </div>
+          <div class="footer-links">
+            <a href="https://github.com/topics/dsh-plugin" target="_blank" rel="noreferrer">插件主题</a>
+            <a href="https://awesome-dsh-plugin.com" target="_blank" rel="noreferrer">社区目录</a>
+            <a href="https://github.com/deepseek-ai/deepseek-harness" target="_blank" rel="noreferrer">DeepSeek Harness</a>
+          </div>
+          <p class="footer-note">本页面是独立目录，不是官方商店。插件均为第三方代码，请自行判断并承担安装风险。</p>
+        </footer>
+      </div>
+    </main>
+  </div>
+
+  <div class="drawer-root" id="drawerRoot" aria-hidden="true">
+    <div class="drawer-scrim" data-close-drawer></div>
+    <aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="插件详情">
+      <div class="drawer-scroll" id="drawerContent"></div>
+    </aside>
+  </div>
+
+  <div class="modal-root" id="modalRoot" aria-hidden="true">
+    <div class="modal-scrim" data-close-modal></div>
+    <div class="modal" id="installModal" role="dialog" aria-modal="true" aria-labelledby="installTitle">
+      <div id="installContent"></div>
+    </div>
+  </div>
+
+  <div class="lightbox" id="lightbox" aria-hidden="true">
+    <button class="lightbox-close" data-close-lightbox aria-label="关闭大图"><svg><use href="#i-close"/></svg></button>
+    <button class="lightbox-nav prev" data-lightbox-prev aria-label="上一张"><svg><use href="#i-chevron"/></svg></button>
+    <img id="lightboxImage" alt="">
+    <button class="lightbox-nav next" data-lightbox-next aria-label="下一张"><svg><use href="#i-chevron"/></svg></button>
+    <p id="lightboxCaption"></p>
+  </div>
+
+  <div class="toast-stack" id="toastStack" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,4 @@
+# dsh-local-market bundle patch: insert this plugin into a profile's layer stack.
+- insert:
+    - id: dsh-local-market
+      name: dsh-local-market
