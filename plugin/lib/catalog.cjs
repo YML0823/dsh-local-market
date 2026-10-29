@@ -1,5 +1,50 @@
 'use strict';
 
+const fs = require('node:fs');
+const path = require('node:path');
+
+/**
+ * Read what a DSH profile actually has installed. The market cannot rely on
+ * its own localStorage because users also install through DSH's own UI.
+ */
+function collectInstalled(profileDir) {
+  const names = new Set();
+  const specs = new Set();
+  const bundles = new Set();
+  try {
+    const pkg = JSON.parse(fs.readFileSync(path.join(profileDir, 'package.json'), 'utf8'));
+    for (const [name, spec] of Object.entries(pkg.dependencies || {})) {
+      names.add(name);
+      specs.add(String(spec));
+    }
+    for (const name of pkg.dsh?.profile?.bundles || []) bundles.add(name);
+  } catch (_) {}
+
+  const modules = path.join(profileDir, 'node_modules');
+  try {
+    for (const entry of fs.readdirSync(modules, { withFileTypes: true })) {
+      if (!entry.isDirectory() || entry.name.startsWith('.')) continue;
+      if (entry.name.startsWith('@')) {
+        for (const child of fs.readdirSync(path.join(modules, entry.name), { withFileTypes: true })) {
+          if (child.isDirectory()) names.add(`${entry.name}/${child.name}`);
+        }
+      } else {
+        names.add(entry.name);
+      }
+    }
+    for (const name of names) {
+      try {
+        const pkg = JSON.parse(fs.readFileSync(path.join(modules, name, 'package.json'), 'utf8'));
+        if (pkg.name) names.add(pkg.name);
+      } catch (_) {}
+    }
+  } catch (_) {}
+
+  for (const name of bundles) names.add(String(name));
+  return { names: [...names].sort(), specs: [...specs], bundles: [...bundles] };
+}
+
+
 /**
  * Shared catalog normalization for the standalone app and the DSH host plugin.
  * The upstream feed uses a richer shape than the UI; this keeps both surfaces
@@ -180,4 +225,4 @@ function normalizeCatalog(raw) {
   };
 }
 
-module.exports = { normalizeCatalog, FEATURED, CATEGORY_STYLE };
+module.exports = { normalizeCatalog, FEATURED, CATEGORY_STYLE, collectInstalled };

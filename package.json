@@ -1,6 +1,6 @@
 {
   "name": "dsh-local-market",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": false,
   "description": "DSH 中文插件市场：实时社区目录、中文检索、界面预览与一键安装",
   "license": "MIT",

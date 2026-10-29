@@ -14,7 +14,7 @@
 - **界面预览**：展示作者提供的真实截图；没有截图的插件使用分类插画封面，详情页支持多图放大
 - **一键安装**：调用本机 `dsh plugin --profile <profile> add <spec>`，实时显示 pnpm 日志
 - **安装前检查**：作者、仓库、npm 包、版本、权限声明、第三方代码提示
-- **收藏 / 已安装**：记录只保存在浏览器本地
+- **已安装状态**：读取当前 DSH profile 的真实依赖与组合包；在 DSH 里从别处安装的插件，也会在约 5 秒内同步到「已安装」
 - **响应式**：桌面、平板、手机均可使用
 
 ![检索与筛选](preview-search.png)
@@ -42,10 +42,10 @@ dsh plugin --profile <profile> add github:YML0823/dsh-local-market
 ### 从本地 tarball 安装
 
 ```powershell
-dsh plugin --profile web add "file:F:/path/to/dsh-local-market-1.0.1.tgz"
+dsh plugin --profile web add "file:F:/path/to/dsh-local-market-1.0.2.tgz"
 ```
 
-已发布版本可直接下载：[GitHub Releases · v1.0.1](https://github.com/YML0823/dsh-local-market/releases/tag/v1.0.1)
+已发布版本可直接下载：[GitHub Releases · v1.0.2](https://github.com/YML0823/dsh-local-market/releases/tag/v1.0.2)
 
 构建 tarball：
 
@@ -53,7 +53,7 @@ dsh plugin --profile web add "file:F:/path/to/dsh-local-market-1.0.1.tgz"
 node scripts/build-plugin.js
 ```
 
-产物输出到 `dist/dsh-local-market-1.0.1.tgz`。
+产物输出到 `dist/dsh-local-market-1.0.2.tgz`。
 
 ### 插件结构
 

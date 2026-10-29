@@ -49,6 +49,11 @@
     liveError: null,
     refreshedAt: null,
     catalogApi: false,
+    installedApi: false,
+    installedNames: new Set(),
+    installedSpecs: [],
+    installedProfile: null,
+    installedSignature: '',
     syncBusy: false,
     isMobileNav: false,
   };
@@ -156,8 +161,85 @@
     } catch (_) {}
   }
 
+  function pluginRepository(plugin) {
+    const match = String(plugin.url || '').match(/github\.com\/([^/]+)\/([^/#?]+)/i);
+    return match ? `${match[1]}/${match[2]}`.toLowerCase() : '';
+  }
+
+  function installedCandidates(plugin) {
+    const candidates = new Set();
+    if (plugin.npm) candidates.add(String(plugin.npm).toLowerCase());
+    const rawName = String(plugin.name || '');
+    const [base, sub] = rawName.split('#');
+    if (base) candidates.add(base.toLowerCase());
+    if (sub) {
+      const last = sub.split('/').filter(Boolean).pop();
+      if (last) candidates.add(last.toLowerCase());
+    }
+    if (String(plugin.spec || '').startsWith('github:')) {
+      const repo = String(plugin.spec).slice(7).split('#')[0];
+      const name = repo.split('/')[1];
+      if (name) candidates.add(name.toLowerCase());
+    }
+    const repo = pluginRepository(plugin);
+    if (repo) {
+      const name = repo.split('/')[1];
+      if (name) candidates.add(name);
+    }
+    return [...candidates].filter(Boolean);
+  }
+
+  function matchesInstalled(plugin) {
+    for (const candidate of installedCandidates(plugin)) {
+      if (state.installedNames.has(candidate)) return true;
+    }
+    const repo = pluginRepository(plugin);
+    if (repo) {
+      for (const spec of state.installedSpecs) {
+        if (spec.includes(repo)) return true;
+      }
+    }
+    return false;
+  }
+
   function isInstalled(id) {
+    const plugin = state.byId.get(id);
+    if (state.installedApi && plugin) {
+      if (matchesInstalled(plugin)) return true;
+      const local = state.installed.get(id);
+      return Boolean(local && Date.now() - Number(local.at || 0) < 120000);
+    }
     return state.installed.has(id);
+  }
+
+  async function loadInstalled() {
+    try {
+      const response = await fetch(appUrl('api/installed'), { headers: { Accept: 'application/json' } });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      const names = Array.isArray(data.names) ? data.names.map((name) => String(name).toLowerCase()) : [];
+      const specs = Array.isArray(data.specs) ? data.specs.map((spec) => String(spec).toLowerCase()) : [];
+      const signature = `${data.profile || ''}|${names.join(',')}|${specs.join(',')}`;
+      const changed = signature !== state.installedSignature;
+      state.installedApi = true;
+      state.installedProfile = data.profile || null;
+      state.installedNames = new Set(names);
+      state.installedSpecs = specs;
+      state.installedSignature = signature;
+      if (changed) {
+        updateNavCounts();
+        if (state.view === 'installed') renderResults();
+      }
+      return changed;
+    } catch (_) {
+      state.installedApi = false;
+      return false;
+    }
+  }
+
+  async function refreshInstalled() {
+    if (document.hidden) return;
+    await loadInstalled();
   }
 
   function addRecent(id) {
@@ -279,7 +361,8 @@
     $('#navTotal').textContent = formatCount(total);
     $('#navShots').textContent = formatCount(shots);
     $('#navFavorites').textContent = state.favorites.size;
-    $('#navInstalled').textContent = state.installed.size;
+    const installedCount = (state.plugins || []).filter((plugin) => isInstalled(plugin.id)).length;
+    $('#navInstalled').textContent = installedCount;
     $('#statTotal').textContent = formatFull(total);
     const heroCount = $('#heroCount');
     if (heroCount) heroCount.textContent = formatFull(total);
@@ -961,6 +1044,8 @@
           if (data.status === 'success') {
             state.installed.set(plugin.id, { at: Date.now(), profile });
             saveInstalled();
+            loadInstalled().catch(() => {});
+            updateNavCounts();
             status.innerHTML = '<span class="status-success">✓ 安装完成</span><span style="color:#71839b">刷新页面或重启 DSH 后生效</span>';
             $('#startInstallBtn').innerHTML = '<svg><use href="#i-check"/></svg>安装完成';
             $('#startInstallBtn').disabled = true;
@@ -1346,7 +1431,7 @@
     updateNavCounts();
 
     try {
-      await Promise.all([loadCatalog(), loadConfig()]);
+      await Promise.all([loadCatalog(), loadConfig(), loadInstalled()]);
       renderCategories();
       updateNavCounts();
       renderFeatured();
@@ -1354,6 +1439,11 @@
       startHeroCycle();
       renderResults();
       updateNavCounts();
+      setInterval(refreshInstalled, 5000);
+      window.addEventListener('focus', refreshInstalled);
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) refreshInstalled();
+      });
       const syncButton = $('#syncBtn');
       if (syncButton) syncButton.hidden = !state.catalogApi;
       const hero = state.featured[0];

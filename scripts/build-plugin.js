@@ -28,7 +28,7 @@ fs.mkdirSync(path.join(STAGE, 'lib'), { recursive: true });
 fs.copyFileSync(path.join(ROOT, 'lib', 'catalog.js'), path.join(STAGE, 'lib', 'catalog.cjs'));
 fs.cpSync(UI, path.join(STAGE, 'ui'), { recursive: true });
 
-const tarball = path.join(DIST, 'dsh-local-market-1.0.1.tgz');
+const tarball = path.join(DIST, 'dsh-local-market-1.0.2.tgz');
 execFileSync('tar', ['-czf', tarball, '-C', DIST, 'package'], { stdio: 'inherit' });
 fs.rmSync(STAGE, { recursive: true, force: true });
 console.log(`[plugin] tarball -> ${tarball} (${(fs.statSync(tarball).size / 1024 / 1024).toFixed(1)} MB)`);

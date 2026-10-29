@@ -15,7 +15,7 @@ const os = require('os');
 const zlib = require('zlib');
 const crypto = require('crypto');
 const { spawn, spawnSync } = require('child_process');
-const { normalizeCatalog, FEATURED } = require('./lib/catalog.js');
+const { normalizeCatalog, FEATURED, collectInstalled } = require('./lib/catalog.js');
 
 const ROOT = __dirname;
 const PUBLIC_DIR = path.join(ROOT, 'public');
@@ -533,6 +533,13 @@ const server = http.createServer(async (req, res) => {
         liveError: live.error,
         refreshedAt: live.fetchedAt || null,
       });
+    }
+
+    if (pathname === '/api/installed' && req.method === 'GET') {
+      const info = readProfiles();
+      const profile = info.profiles.find((item) => item.name === info.defaultProfile) || info.profiles[0];
+      if (!profile?.dir) return json(res, 200, { profile: null, names: [], specs: [], bundles: [] });
+      return json(res, 200, { profile: profile.name, ...collectInstalled(profile.dir) });
     }
 
     if (pathname === '/api/config' && req.method === 'GET') {

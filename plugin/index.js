@@ -520,6 +520,13 @@ async function handleApi(request, response, requestUrl, subPath) {
     });
   }
 
+  if (apiPath === '/installed' && request.method === 'GET') {
+    const info = readProfiles();
+    const profile = info.profiles.find((item) => item.name === info.defaultProfile) || info.profiles[0];
+    if (!profile?.dir) return sendJson(response, 200, { profile: null, names: [], specs: [], bundles: [] });
+    return sendJson(response, 200, { profile: profile.name, ...catalogLib.collectInstalled(profile.dir) });
+  }
+
   if (apiPath === '/catalog' && request.method === 'GET') {
     const refreshed = requestUrl.searchParams.get('refresh') === '1';
     await refreshCatalog(refreshed);
